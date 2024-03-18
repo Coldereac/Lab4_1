@@ -4,78 +4,68 @@
 
 #include "functions.h"
 
-//1 - слова рівні
-//0 - слова не рівні
-//-1 - перше слово більше
-//2 - друге слово більше
-int compare(char *str1, char *str2) {
-    int result = 1; // результат перевірки
-    if (strlen(str1) > strlen(str2)) {
-        result = -1;
+//0 - слова рівні
+//1 - друге слово більше
+//2 - перше слово більше
+int compare(const char *s1, const char *s2) {
+    while (*s1 != '\0' && *s2 != '\0' && *s1 == *s2) {
+        s1++;
+        s2++;
     }
-    else if(strlen(str1) < strlen(str2)){
-        result = 2;
-    }
-    else {
-        while (result && *str1 != '\0' && *str2 != '\0') { // доки не дійдемо до кінця слів
-            if (*str1 != *str2) {
-                // якщо теперешній символ першого слова не дорівнює
-                // теперішньому символу іншого слова, то вони не є однаковими
-                // Перевірка, якщо різний регістр
-                if (abs(*str1 - *str2) != 32) {
-                    result = 0;
-                }
-            }
-            *str1++; //переміщення по слову вперед
-            *str2++;
-        }
-    }
-    return result;
+    return *s1 - *s2;
 }
 
-int input(char *arr[]) {
+int input(char **arr) {
     int i = 0; // кількість слів у реченні
     //виділення пам'яті під перший елемент з його отриманням
     //якщо він не є точкою, то продовжуємо
-    *arr = (char*) malloc(WORDLEN * sizeof(char));
+    *arr = (char *) malloc(WORDLEN * sizeof(char));
     scanf("%s", arr[i]);
-    *arr = (char*) realloc(*arr, (strlen(*arr)+1) * sizeof(char));
-    while (arr[i][0] != '.') { // порівнюємо слово з точкою, якщо вони не однакові, то отримуємо наступне слово
+    *arr = (char *) realloc(*arr, (strlen(*arr) + 1) * sizeof(char));
+    // перевиділення пам'яті під точну кількість символів
+    while (arr[i][0] != '.') {
+        // порівнюємо слово з точкою, якщо вони не однакові, то отримуємо наступне слово
         i++;
-        *(arr+i) = (char*) malloc(WORDLEN * sizeof(char));
+        *(arr + i) = (char *) malloc(WORDLEN * sizeof(char));
         scanf("%s", arr[i]);
-        *(arr+i) = (char*) realloc(*(arr+i), (strlen(*(arr+i))+1) * sizeof(char));
+        *(arr + i) = (char *) realloc(*(arr + i), (strlen(*(arr + i)) + 1) * sizeof(char));
+        // перевиділення пам'яті під точну кількість символів
     }
     return i; // повертаємо кількість слів у реченні
 }
 
-void output(char *arr[]) {
-    for (int i = 0; arr[i][0] != '.'; i++) { //виводимо, доки не дійдемо до точки
+void output(const char **arr) {
+    for (int i = 0; arr[i][0] != '.'; i++) {
+        //виводимо, доки не дійдемо до точки
         printf("%s ", arr[i]);
     }
     printf("\n");
 }
 
-void freeMemory(char *arr[], int size) {
-    for (int i = 0; i < size+1; ++i) { //вивільняємо пам'ять кожного масива в масиві
+void freeMemory(char **arr, int size) {
+    for (int i = 0; i < size + 1; ++i) {
+        //вивільняємо пам'ять кожного масива в масиві
         free(arr[i]);
     }
+    free(arr); // вивільняємо пам'ять під масив
 }
 
-char* invert(char *str) {
+char *invert(const char *str) {
     int length = strlen(str); // довжина слова
-    char *temp = malloc(length * sizeof(char)); // обернене слово
+    // обернене слово
+    char *temp = (char *) malloc(length * sizeof(char));
     int i = 0; // лічильник для оберненого слова
     //j - лічильник для оригінального слова
     //записуємо у temp char-и з str, починаючи з останнього і до першого
     for (int j = length - 1; i < length; ++i, --j) {
-        *(temp + i) = *(str+j);
+        *(temp + i) = *(str + j);
     }
     temp[i] = '\0'; // додаємо в кінець спец символ
     return temp;
 }
 
-/*bool palindrome(char *str) {
+/*
+bool palindrome(char *str) {
     bool result = true; // результат перевірки
     int length = strlen(str); // довжина слова
     for (int i = 0; i < length / 2 && result; ++i) { // йдемо від 0 до середини слова
@@ -86,9 +76,41 @@ char* invert(char *str) {
         }
     }
     return result;
-}*/
+}
+*/
 
-bool palindrome(char *str1) {
-    return compare(str1, invert(str1)) == 1;
+
+bool palindrome(const char *str) {
+    int size = strlen(str);
+    int difference = ('a' - 'A');
+    char * lowered_str = (char *) malloc(size * sizeof(char));
+    int i = 0;
+    for (; i < size; i ++) {
+        if (str[i] >= 'A' && str[i] <= 'Z')
+            lowered_str[i] = str[i] + difference;
+        else
+            lowered_str[i] = str[i];
+    }
+    lowered_str[i] = '\0';
+    char *inverted_lowered_str = invert(lowered_str);
+    bool is_palindrome = compare(lowered_str, inverted_lowered_str) == 0;
+    free(lowered_str);
+    free(inverted_lowered_str);
+    return is_palindrome;
 }
 
+/*bool palindrome(char *str) {
+    int size = strlen(str);
+    int difference = ('a' - 'A');
+    /*char * lowered_str = (char *) malloc(size * sizeof(char));#1#
+    int i = 0;
+    for (; i < size; i ++) {
+        if (str[i] >= 'A' && str[i] <= 'Z')
+            str[i] += difference;
+    }
+    str[i] = '\0';
+    char *inverted_lowered_str = invert(str);
+    bool is_palindrome = compare(str, inverted_lowered_str) == 0;
+    free(inverted_lowered_str);
+    return is_palindrome;
+}*/
