@@ -19,35 +19,30 @@ int input(char **arr) {
     int i = 0; // кількість слів у реченні
     //виділення пам'яті під перший елемент з його отриманням
     //якщо він не є точкою, то продовжуємо
-    *arr = (char *) malloc(WORDLEN * sizeof(char));
+    *arr = (char*) malloc(WORDLEN * sizeof(char));
     scanf("%s", arr[i]);
-    *arr = (char *) realloc(*arr, (strlen(*arr) + 1) * sizeof(char));
-    // перевиділення пам'яті під точну кількість символів
-    while (arr[i][0] != '.') {
-        // порівнюємо слово з точкою, якщо вони не однакові, то отримуємо наступне слово
+    *arr = (char*) realloc(*arr, (strlen(*arr)+1) * sizeof(char));
+    while (arr[i][0] != '.') { // порівнюємо слово з точкою, якщо вони не однакові, то отримуємо наступне слово
         i++;
-        *(arr + i) = (char *) malloc(WORDLEN * sizeof(char));
+        *(arr+i) = (char*) malloc(WORDLEN * sizeof(char));
         scanf("%s", arr[i]);
-        *(arr + i) = (char *) realloc(*(arr + i), (strlen(*(arr + i)) + 1) * sizeof(char));
-        // перевиділення пам'яті під точну кількість символів
+        *(arr+i) = (char*) realloc(*(arr+i), (strlen(*(arr+i))+1) * sizeof(char));
     }
     return i; // повертаємо кількість слів у реченні
 }
 
 void output(const char **arr) {
-    for (int i = 0; arr[i][0] != '.'; i++) {
-        //виводимо, доки не дійдемо до точки
+    for (int i = 0; arr[i][0] != '.'; i++) { //виводимо, доки не дійдемо до точки
         printf("%s ", arr[i]);
     }
     printf("\n");
 }
 
-void freeMemory(char **arr, int size) {
-    for (int i = 0; i < size + 1; ++i) {
-        //вивільняємо пам'ять кожного масива в масиві
+
+void freeMemory(char *arr[], int size) {
+    for (int i = 0; i < size+1; ++i) { //вивільняємо пам'ять кожного масива в масиві
         free(arr[i]);
     }
-    free(arr); // вивільняємо пам'ять під масив
 }
 
 char *invert(const char *str) {
